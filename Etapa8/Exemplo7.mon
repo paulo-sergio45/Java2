@@ -1,0 +1,28 @@
+
+ inicio
+ 
+    /* Programa com erros semânticos */
+ 
+    numerico $a, $b, $c, $d;
+ 
+             texto $x, $y, $z, $x;// erro: variável x repitida
+ 
+ 
+    $b = $a + 5 + $c;     // erro: variável c não inicializada
+ 
+    $d = $d + 1;       // erro: variável d não inicializada
+ 
+    $c = $a + "fim";         // erro: incompatibilidade de tipos na expressão
+ 
+    $a = "texto" + $x;      // erro: incompatibilidade de tipos na atribuição
+ 
+    $e = $d + 1 + "fim"; 	// erro: variável e não declarada
+ 
+    $y = $x + $z + $a;         // erro: incompatibilidade de tipos na expressão
+ 
+    $z = "a" * "b" ;        // erro: operador incompatível
+    
+    $a = $b * 2 + $w;// erro: variável w não declarada
+    
+ 
+ fim

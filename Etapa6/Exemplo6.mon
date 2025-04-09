@@ -1,0 +1,77 @@
+
+
+inicio
+
+   /* Programa exemplo
+
+   Calcula média final segundo critérios da FAESA */
+
+ 
+
+   numerico   $Nota1, $Nota2, $Nota3,
+
+                     $MediaSemestral, $MediaFinal, $PrFinal, $Faltas;
+
+   texto    $Situacao;
+
+ 
+
+   	imprima("texto janela","entre com as duas notas:");
+
+	$Nota1 = leia("");
+	$Nota2 = leia("");
+	$Nota3 = leia("");
+	$Faltas = leia("Entre com o percentual de faltas:");
+   
+
+ 
+
+   $MediaSemestral = ($Nota1+$Nota2+$Nota3)/3;
+
+   $MediaFinal = $MediaSemestral;
+
+    
+
+   if ($Faltas > 50 or ($Faltas > 25 and $MediaSemestral < 1.5)) {
+
+      $situacao = "reprovado por faltas";
+
+   }else{
+
+      if ($MediaSemestral < 1.5 ){
+
+         $situacao = "reprovado por nota";
+
+      }else{
+
+         if ($MediaSemestral < 7 ){
+
+            imprima("texto janela","Nota mínima para a prova final:",
+
+                    (5 - $MediaSemestral * 0.4)/0.6);
+
+           $PrFinal = leia("Entre com a nota da prova final:");
+
+            $MediaFinal = $MediaSemestral * 0.4 + $PrFinal * 0.6;
+
+         }
+
+         if ($MediaFinal >= 5){
+
+            $Situacao = "aprovado";
+
+         }else{
+
+            $Situacao = "reprovado por nota";
+
+         }
+
+      }
+
+   }
+
+   imprima("texto janela","Média final é:", $MediaFinal, "Situacao:",$Situacao,
+
+           "Faltas(%):", $PercentualFaltas);
+
+fim

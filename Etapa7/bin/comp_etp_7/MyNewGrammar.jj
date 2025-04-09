@@ -1,0 +1,473 @@
+options
+{
+  JDK_VERSION = "1.5";
+  DEBUG_PARSER = false;
+  DEBUG_TOKEN_MANAGER = false;
+}
+
+PARSER_BEGIN(GramaticaLinguagem)
+package comp_etp_7;
+import java.io.*;
+
+public class GramaticaLinguagem
+{
+  static Tabela tabela = new Tabela();
+
+  public static void main(String args []) throws ParseException
+  {
+    GramaticaLinguagem analisador = null;
+    try
+    {
+      analisador = new GramaticaLinguagem(new FileInputStream("Exemplo3.mon"));
+      analisador.inicio();
+      System.out.println(tabela.toString());
+    }
+    catch (FileNotFoundException e)
+    {
+      System.out.println("Erro: arquivo n\u00e3o encontrado");
+    }
+    catch (TokenMgrError e)
+    {
+      System.out.println("Erro l\u00e9xico\n" + e.getMessage());
+    }
+    catch (ParseException e)
+    {
+      System.out.println("Erro sint\u00e1tico\n" + e.getMessage());
+    }
+  }
+}
+
+PARSER_END(GramaticaLinguagem)
+
+/*espaco em branco*/
+
+SKIP :
+{
+  " "
+| "\t"
+| "\r"
+| "\n"
+| "\f"
+}
+
+/*comentario*/
+SPECIAL_TOKEN :
+{
+  < COMENTARIO_BLOC : "/*" (~[ "/" ])* "*/" >
+| 
+  < COMENTARIO_LIN :
+    "//" (~[ "\n", "\r" ])*
+    (
+      "\n"
+    | "\r"
+    | "\r\n"
+    ) >
+}
+
+/*palavras reservadas*/
+TOKEN :
+{
+  < TIPO_NUMERICO : "numerico" >
+| 
+  < TIPO_TEXTO : "texto" >
+| 
+  < WHILE : "while" >
+| 
+  < INICIO : "inicio" >
+| 
+  < FIM : "fim" >
+| 
+  < VERDADEIRO : 
+    "verdade" >
+| 
+  < FALSO : 
+    "falso" >
+| 
+  < IF : "if" >
+| 
+  < ELSE : "else" >
+| 
+  < LEIA : "leia" >
+| 
+  < IMPRIMA : "imprima" >
+}
+
+TOKEN :
+{
+  < TEXTO :
+    (< ASPA >)
+    (
+      ~[ "\"" ]
+    | "\\" (< ASPA >)
+    )*
+    (< ASPA >) >
+| 
+  < LETRAS : ([ "a"-"z", "A"-"Z" ]) >
+| 
+  < NUMERO : (< DIGITO >)* (".")? (< DIGITO >)+ >
+| 
+  < DIGITO : ([ "0"-"9" ]) >
+| 
+  < VARIAVEL : (< CIFRAO >) (< LETRAS >) (< LETRAS >)* (< DIGITO >)* >
+| 
+  < ATRIBUICAO : "=" >
+| 
+  < CIFRAO : "$" >
+| 
+  < OP_LOGICO_E :
+    "&&"
+  | "and" >
+| 
+  < OP_LOGICO_OU :
+    "||"
+  | "or" >
+| 
+  < OP_LOGICO_NEGACAO :
+    "!"
+  | "not" >
+| 
+  < OP_MAIOR_QUE : ">" >
+| 
+  < OP_MAIOR_OU_IGUAL : ">=" >
+| 
+  < OP_MENOR_QUE : "<" >
+| 
+  < OP_MENOR_OU_IGUAL : "<=" >
+| 
+  < OP_DIFERENTE : "!=" >
+| 
+  < OP_IGUALDADE : "==" >
+| 
+  < ABRE_PARENTESES : "(" >
+| 
+  < FECHA_PARENTESES : ")" >
+| 
+  < ABRE_CHAVES : "{" >
+| 
+  < FECHA_CHAVES : "}" >
+| 
+  < ADICAO : "+" >
+| 
+  < SUBTRACAO : "-" >
+| 
+  < MULTIPLICACAO : "*" >
+| 
+  < DIVISAO : "/" >
+| 
+  < MODULO : "%" >
+| 
+  < FINAL_COMANDO : ";" >
+| 
+  < VIRGULA : "," >
+| 
+  < ASPA : "\"" >
+| 
+  < POTENCIA : "^" >
+}
+
+void inicio() :
+{
+}
+{
+  (
+    < INICIO > blocoComando() < FIM >
+    {
+    }
+  )*
+  < EOF >
+  {
+  }
+}
+
+void blocoComando() :
+{
+}
+{
+  (
+    comandoIf()
+  | comandoWhile()
+  | comandoLinha()
+  )*
+  {
+  }
+}
+
+void comandoLinha() :
+{
+}
+{
+  declarar() 
+| impressao()
+| atribuicao()
+  {
+  }
+}
+
+void comandoWhile() :
+{
+}
+{
+  < WHILE > < ABRE_PARENTESES > expressaoRelacao() < FECHA_PARENTESES > < ABRE_CHAVES > blocoComando() < FECHA_CHAVES >
+  {
+  }
+}
+
+void comandoIf() :
+{
+}
+{
+  < IF > < ABRE_PARENTESES > expressaoRelacao() < FECHA_PARENTESES > < ABRE_CHAVES > blocoComando() < FECHA_CHAVES >
+  (
+    < ELSE > < ABRE_CHAVES > blocoComando() < FECHA_CHAVES >
+  )?
+  {
+  }
+}
+
+void atribuicao() :
+{
+}
+{
+  < VARIAVEL > < ATRIBUICAO >
+  (
+    expressaoRelacao()
+  | 
+    entrada()
+  )*	
+  < FINAL_COMANDO >
+  {
+
+   
+  }
+}
+
+void entrada() :
+{
+}
+{
+  < LEIA > < ABRE_PARENTESES > < TEXTO > < FECHA_PARENTESES >
+  {
+  }
+}
+
+void impressao() :
+{
+}
+{
+  < IMPRIMA > < ABRE_PARENTESES > < TEXTO >
+  (
+    < VIRGULA > expressaoRelacao()
+  )*
+  < FECHA_PARENTESES > < FINAL_COMANDO >
+  {
+  }
+}
+
+void declarar() :
+{  Simbolo simb;
+  Token t;
+  char tp;
+}
+{
+  (
+    < TIPO_TEXTO >{tp='s';}
+  | < TIPO_NUMERICO >{tp='n';} 
+  )
+  t=< VARIAVEL > {
+    
+     simb = new Simbolo(t.image,tp); tabela.inclui(simb);
+     
+  
+    }
+  (< VIRGULA > t=< VARIAVEL >{
+      simb = new Simbolo(t.image,tp); tabela.inclui(simb);
+  })* < FINAL_COMANDO >
+  
+}
+
+void expressaoRelacao():
+{
+
+}
+{
+   termo()  
+ 
+ 		
+ 		  (
+ 		    
+     	<OP_LOGICO_OU> termo(){ } )*
+
+
+{
+
+    
+}
+}
+void termo():
+{
+
+}
+{
+  termo1()
+  			(
+  			  
+  			  <OP_LOGICO_E>  termo1() { })*
+
+
+{
+
+    
+}
+}
+void termo1():
+{
+
+}
+{
+  termo2()
+  			(
+  			 <  OP_IGUALDADE >termo2(){ }|
+   			< OP_DIFERENTE >termo2(){ }|
+   			  < OP_MAIOR_QUE > termo2(){ }|
+  			< OP_MENOR_QUE >termo2(){ }|
+   			<  OP_MAIOR_OU_IGUAL >termo2(){ }|
+   			< OP_MENOR_OU_IGUAL > termo2(){ })*
+
+
+{
+
+    
+}
+}
+void termo2():
+{
+
+}
+{
+  termo3()
+  			(<ADICAO> termo3() { }
+    	)*
+
+
+{
+
+    
+}
+}
+void termo3():
+{
+
+}
+{
+  termo4()(
+  			<SUBTRACAO>  termo4(){ })*
+  			 
+    		 
+
+
+{
+
+    
+}
+}
+void termo4():
+{
+
+}
+{
+  termo5()
+  		
+  			  (
+  			    
+  			  <MULTIPLICACAO> termo5() { })*
+  			
+
+
+{
+
+    
+}
+}
+void termo5():
+{
+
+}
+{
+  termo6()
+  			(
+  			  
+  			 
+  			<DIVISAO> termo6() { })*
+    		
+
+
+{
+
+    
+}
+}void termo6():
+{
+
+}
+{
+  termo7()(
+  		
+    		< MODULO > termo7(){ })*
+    		
+
+{
+
+    
+}
+}void termo7():
+{
+
+}
+{
+  termo8()
+  			(
+  			  
+  			  <POTENCIA> termo8() { })*
+  			 
+    		
+
+{
+
+    
+}
+}void termo8():
+{
+int cont =0;
+Token t=null;
+}
+{
+  (	t=<OP_LOGICO_NEGACAO> {cont++; })*fator()
+  			 
+    		
+
+{if(t!=null && (cont %2 != 0)) {
+
+  }
+
+    
+}
+}
+
+void fator():
+{
+
+}
+{
+
+<VERDADEIRO>{ }|
+<NUMERO>{ }|
+<FALSO>{ }|
+< VARIAVEL > { }|
+< TEXTO >  { }|
+<ABRE_PARENTESES> expressaoRelacao() <FECHA_PARENTESES>{ }
+
+{
+
+    
+}
+}

@@ -1,0 +1,7 @@
+
+
+inicio
+
+imprima("texto janela","2 + 3 * 4 = ", 2+3*4); // deve imprimir: "2 + 3 * 4 = 14"
+
+fim

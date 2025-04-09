@@ -1,0 +1,4 @@
+ a := XIX + IV + II;
+  b := XXXVIII;
+  soma := a + b;
+  exibe soma;

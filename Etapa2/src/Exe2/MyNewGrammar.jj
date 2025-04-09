@@ -1,0 +1,299 @@
+options
+{
+  JDK_VERSION = "1.5";
+  DEBUG_PARSER = false;
+  DEBUG_TOKEN_MANAGER = false;
+}
+
+PARSER_BEGIN(ClassificadorDeTokensDoJavaCPascal)
+package Exe2;
+import java.io.*;
+
+public class ClassificadorDeTokensDoJavaCPascal
+{
+  public static void main(String args []) throws ParseException
+  {
+    ClassificadorDeTokensDoJavaCPascal analisador = null;
+    try
+    {
+      analisador = new ClassificadorDeTokensDoJavaCPascal(new FileInputStream("prog_fonte.my"));
+      analisador.inicio();
+    }
+    catch (FileNotFoundException e)
+    {
+      System.out.println("Erro: arquivo n\u00e3o encontrado");
+    }
+    catch (TokenMgrError e)
+    {
+      System.out.println("Erro l\u00e9xico\n" + e.getMessage());
+    }
+    catch (ParseException e)
+    {
+      System.out.println("Erro sint\u00e1tico\n" + e.getMessage());
+    }
+  }
+}
+
+PARSER_END(ClassificadorDeTokensDoJavaCPascal)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\r"
+| "\n"
+}
+
+TOKEN [ IGNORE_CASE ] :
+{
+  < OP_LOGICO_PASCAL :
+    (
+      "AND"
+    | "OR"
+    | "NOT"
+    | "XOR "
+    ) >
+}
+
+TOKEN :
+{
+  < IDENT :
+    (
+      "/*"
+      (
+        "a"
+      | "b"
+      | "d"
+      | "f"
+      | "g"
+      | "h"
+      | "i"
+      | "j"
+      | "k"
+      | "l"
+      | "m"
+      | "n"
+      | "o"
+      | "p"
+      | "q"
+      | "r"
+      | "s"
+      | "t"
+      | "v"
+      | "x"
+      | "z"
+      | "w"
+      | "k"
+      | "y"
+      )
+    | [ "a"-"z" ] [ "a"-"z" ]
+    )
+    ([ "a"-"z" ])* "*/" >
+| 
+  < ATRIB : ":=" >
+| 
+  < IGUAL : "=" >
+| 
+  < REAL : (< DIGITOS >)* (".") (< DIGITOS >)+ >
+| 
+   < NATURAIS : (< DIGITOS >) (< DIGITOS >)* >
+|
+<DIGITOS: ([ "0"-"9" ])+  >
+| 
+  < HEXADECIMAL :
+    "0"
+    (
+      "x"
+    | "X"
+    )
+    
+    ([ "0"-"9" , "A"-"F", "a"-"f" ])+ >
+| 
+  < VARIAVEL : ([ "A"-"Z", "a"-"z" ]) ([ "A"-"Z", "a"-"z", "0"-"9"  ])* >
+| 
+  < OP_LOGICO_JAVA :
+    "&&"
+  | "||"
+  | "!" >
+| 
+  < OP_RELACIONAL :
+    ">"
+  | ">="
+  | "<"
+  | "<=" >
+| 
+  < OP_RELACIONAL_JAVA :
+    "!="
+  | "==" >
+| 
+  < OP_RELACIONAL_PASCAL : "<>" >
+| 
+  < ABRE_PARENTESES : "(" >
+| 
+  < FECHA_PARENTESES : ")" >
+| 
+  < ADICAO : "+" >
+| 
+  < SUBTRACAO : "-" >
+| 
+  < MULTIPLICACAO : "*" >
+| 
+  < DIVISAO : "/" >
+| 
+  < MODULO : " %" >
+| 
+  < PT_VIRG : ";" >
+
+}
+
+void inicio() :
+{
+  char tipo;
+  int qtdeOperadores = 0, qtdeNumeros = 0;
+}
+{
+  (
+    tipo = token()
+    {
+      if (tipo == 'o') 
+      qtdeOperadores++;
+      else if (tipo == 'n') 
+      qtdeNumeros++;
+    }
+  )*
+  < EOF >
+  {
+    System.out.println("\nTotal de:\n" + qtdeNumeros + " numeros(s)\n" + qtdeOperadores + " operador(es)");
+  }
+}
+
+// retorna 'n' para número, 'o' para operador, 'v' para variável, ou 'p' para parênteses
+char token() :
+{
+  Token t;
+  String descricao;
+  char tipo;
+}
+{
+  (
+    
+ 
+    t = < REAL >
+    {
+      descricao = "n\u00famero real";
+      tipo = 'n';
+    }
+    | 
+      t = < NATURAIS >
+    {
+      descricao = "n\u00famero natural";
+      tipo = 'n';
+    }
+  | 
+    t = < HEXADECIMAL >
+    {
+      descricao = "n\u00famero hexadecimal";
+      tipo = 'n';
+    }
+  | 
+    t = < VARIAVEL >
+    {
+      descricao = "vari\u00e1vel";
+      tipo = 'v';
+    }
+  | 
+    t = < OP_LOGICO_JAVA >
+    {
+      descricao = "operador l\u00f3gico do JAVA/C";
+      tipo = 'o';
+    }
+  | 
+    t = < OP_LOGICO_PASCAL >
+    {
+      descricao = "operador l\u00f3gico do PASCAL/C";
+      tipo = 'o';
+    }
+  | 
+    t = < OP_RELACIONAL >
+    {
+      descricao = "operador relacional do JAVA/C/PASCAL";
+      tipo = 'o';
+    }
+  | 
+    t = < OP_RELACIONAL_JAVA >
+    {
+      descricao = "operador relacional do JAVA/C";
+      tipo = 'o';
+    }
+  | 
+    t = < OP_RELACIONAL_PASCAL >
+    {
+      descricao = "operador relacional do PASCAL";
+      tipo = 'o';
+    }
+  | 
+    t = < ABRE_PARENTESES >
+    {
+      descricao = "abre par\u00eanteses";
+      tipo = 'p';
+    }
+  | 
+    t = < FECHA_PARENTESES >
+    {
+      descricao = "fecha par\u00eanteses";
+      tipo = 'p';
+    }
+  | 
+    t = < ATRIB >	
+    {
+      descricao = "atribui\u00e7ao";
+      tipo = 'o';
+    }
+  | 
+    t = < IGUAL >	
+    {
+      descricao = "igual a";
+      tipo = 'o';
+    }
+  | 
+    t = < IDENT >
+    {
+      descricao = "comentario";
+      tipo = 'o';
+    }
+  | 
+    t = < ADICAO >
+    {
+      descricao = "operadores aditivos";
+      tipo = 'o';
+    }
+  | 
+    t = < SUBTRACAO >
+    {
+      descricao = "operadores SUBTRACAO";
+      tipo = 'o';
+    }
+  | 
+    t = < MULTIPLICACAO >
+    {
+      descricao = "operadores MULTIPLICACAO";
+      tipo = 'o';
+    }
+  | 
+    t = < DIVISAO >
+    {
+      descricao = "operadores DIVISAO";
+      tipo = 'o';
+    }
+  | 
+    t = < MODULO >
+    {
+      descricao = "operadores MODULO";
+      tipo = 'o';
+    }
+  )
+  {
+    System.out.println(t.image + "\t" + descricao);
+    return tipo;
+  }
+}

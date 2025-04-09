@@ -1,0 +1,228 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>BNF for MyNewGrammar.jj </TITLE>
+</HEAD>
+<BODY>
+<H1 ALIGN=CENTER>BNF for MyNewGrammar.jj </H1>
+<H2 ALIGN=CENTER>TOKENS</H2>
+<TABLE>
+ <!-- Special token -->
+ <TR>
+  <TD>
+<PRE>
+/*espaco em branco*/</PRE>
+  </TD>
+ </TR>
+ <!-- Token -->
+ <TR>
+  <TD>
+   <PRE>
+&lt;DEFAULT&gt; SKIP : {
+" "
+| "\t"
+| "\r"
+| "\n"
+| "\f"
+}
+
+   </PRE>
+  </TD>
+ </TR>
+ <!-- Special token -->
+ <TR>
+  <TD>
+<PRE>
+/*comentario*/</PRE>
+  </TD>
+ </TR>
+ <!-- Token -->
+ <TR>
+  <TD>
+   <PRE>
+&lt;DEFAULT&gt; SPECIAL : {
+&lt;COMENTARIO_BLOC: "/*" (~["/"])* "*/"&gt;
+| &lt;COMENTARIO_LIN: "//" (~["\n","\r"])* ("\n" | "\r" | "\r\n")&gt;
+}
+
+   </PRE>
+  </TD>
+ </TR>
+ <!-- Special token -->
+ <TR>
+  <TD>
+<PRE>
+/*palavras reservadas*/</PRE>
+  </TD>
+ </TR>
+ <!-- Token -->
+ <TR>
+  <TD>
+   <PRE>
+&lt;DEFAULT&gt; TOKEN : {
+&lt;TIPO_NUMERICO: "numerico"&gt;
+| &lt;TIPO_TEXTO: "texto"&gt;
+| &lt;WHILE: "while"&gt;
+| &lt;INICIO: "inicio"&gt;
+| &lt;FIM: "fim"&gt;
+| &lt;VERDADEIRO: "verdade"&gt;
+| &lt;FALSO: "falso"&gt;
+| &lt;IF: "if"&gt;
+| &lt;ELSE: "else"&gt;
+| &lt;LEIA: "leia"&gt;
+| &lt;IMPRIMA: "imprima"&gt;
+}
+
+   </PRE>
+  </TD>
+ </TR>
+ <!-- Token -->
+ <TR>
+  <TD>
+   <PRE>
+&lt;DEFAULT&gt; TOKEN : {
+&lt;TEXTO: &lt;ASPA&gt; (~["\""] | "\\" &lt;ASPA&gt;)* &lt;ASPA&gt;&gt;
+| &lt;LETRAS: ["a"-"z","A"-"Z"]&gt;
+| &lt;NUMERO: (&lt;DIGITO&gt;)* (".")? (&lt;DIGITO&gt;)+&gt;
+| &lt;DIGITO: ["0"-"9"]&gt;
+| &lt;VARIAVEL: &lt;CIFRAO&gt; &lt;LETRAS&gt; (&lt;LETRAS&gt;)* (&lt;DIGITO&gt;)*&gt;
+| &lt;ATRIBUICAO: "="&gt;
+| &lt;CIFRAO: "$"&gt;
+| &lt;OP_LOGICO_E: "&amp;&amp;" | "and"&gt;
+| &lt;OP_LOGICO_OU: "||" | "or"&gt;
+| &lt;OP_LOGICO_NEGACAO: "!" | "not"&gt;
+| &lt;OP_MAIOR_QUE: "&gt;"&gt;
+| &lt;OP_MAIOR_OU_IGUAL: "&gt;="&gt;
+| &lt;OP_MENOR_QUE: "&lt;"&gt;
+| &lt;OP_MENOR_OU_IGUAL: "&lt;="&gt;
+| &lt;OP_DIFERENTE: "!="&gt;
+| &lt;OP_IGUALDADE: "=="&gt;
+| &lt;ABRE_PARENTESES: "("&gt;
+| &lt;FECHA_PARENTESES: ")"&gt;
+| &lt;ABRE_CHAVES: "{"&gt;
+| &lt;FECHA_CHAVES: "}"&gt;
+| &lt;ADICAO: "+"&gt;
+| &lt;SUBTRACAO: "-"&gt;
+| &lt;MULTIPLICACAO: "*"&gt;
+| &lt;DIVISAO: "/"&gt;
+| &lt;MODULO: "%"&gt;
+| &lt;FINAL_COMANDO: ";"&gt;
+| &lt;VIRGULA: ","&gt;
+| &lt;ASPA: "\""&gt;
+| &lt;POTENCIA: "^"&gt;
+}
+
+   </PRE>
+  </TD>
+ </TR>
+</TABLE>
+<H2 ALIGN=CENTER>NON-TERMINALS</H2>
+<TABLE>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod1">inicio</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;INICIO&gt; <A HREF="#prod2">blocoComando</A> &lt;FIM&gt; )* &lt;EOF&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod2">blocoComando</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( <A HREF="#prod3">comandoIf</A> | <A HREF="#prod4">comandoWhile</A> | <A HREF="#prod5">comandoLinha</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod5">comandoLinha</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod6">declarar</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>|</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod7">impressao</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>|</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod8">atribuicao</A></TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod4">comandoWhile</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;WHILE&gt; &lt;ABRE_PARENTESES&gt; <A HREF="#prod9">expressaoRelacao</A> &lt;FECHA_PARENTESES&gt; &lt;ABRE_CHAVES&gt; <A HREF="#prod2">blocoComando</A> &lt;FECHA_CHAVES&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod3">comandoIf</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;IF&gt; &lt;ABRE_PARENTESES&gt; <A HREF="#prod9">expressaoRelacao</A> &lt;FECHA_PARENTESES&gt; &lt;ABRE_CHAVES&gt; <A HREF="#prod2">blocoComando</A> &lt;FECHA_CHAVES&gt; ( &lt;ELSE&gt; &lt;ABRE_CHAVES&gt; <A HREF="#prod2">blocoComando</A> &lt;FECHA_CHAVES&gt; )?</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod8">atribuicao</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;VARIAVEL&gt; &lt;ATRIBUICAO&gt; ( <A HREF="#prod9">expressaoRelacao</A> | <A HREF="#prod10">entrada</A> )* &lt;FINAL_COMANDO&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod10">entrada</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;LEIA&gt; &lt;ABRE_PARENTESES&gt; &lt;TEXTO&gt; &lt;FECHA_PARENTESES&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod7">impressao</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;IMPRIMA&gt; &lt;ABRE_PARENTESES&gt; &lt;TEXTO&gt; ( &lt;VIRGULA&gt; <A HREF="#prod9">expressaoRelacao</A> )* &lt;FECHA_PARENTESES&gt; &lt;FINAL_COMANDO&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod6">declarar</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>( &lt;TIPO_TEXTO&gt; | &lt;TIPO_NUMERICO&gt; ) &lt;VARIAVEL&gt; ( &lt;VIRGULA&gt; &lt;VARIAVEL&gt; )* &lt;FINAL_COMANDO&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod9">expressaoRelacao</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod11">expressaoNaoRelacao</A> ( &lt;OP_MAIOR_QUE&gt; <A HREF="#prod11">expressaoNaoRelacao</A> | &lt;OP_MAIOR_OU_IGUAL&gt; <A HREF="#prod11">expressaoNaoRelacao</A> | &lt;OP_MENOR_QUE&gt; <A HREF="#prod11">expressaoNaoRelacao</A> | &lt;OP_MENOR_OU_IGUAL&gt; <A HREF="#prod11">expressaoNaoRelacao</A> | &lt;OP_DIFERENTE&gt; <A HREF="#prod11">expressaoNaoRelacao</A> | &lt;OP_IGUALDADE&gt; <A HREF="#prod11">expressaoNaoRelacao</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod11">expressaoNaoRelacao</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod12">termo</A> ( &lt;ADICAO&gt; <A HREF="#prod12">termo</A> | &lt;SUBTRACAO&gt; <A HREF="#prod12">termo</A> | &lt;OP_LOGICO_OU&gt; <A HREF="#prod12">termo</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod12">termo</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE><A HREF="#prod13">fator</A> ( &lt;POTENCIA&gt; <A HREF="#prod13">fator</A> | &lt;MULTIPLICACAO&gt; <A HREF="#prod13">fator</A> | &lt;DIVISAO&gt; <A HREF="#prod13">fator</A> | &lt;OP_LOGICO_E&gt; <A HREF="#prod13">fator</A> | &lt;MODULO&gt; <A HREF="#prod13">fator</A> )*</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE><A NAME="prod13">fator</A></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>::=</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;OP_LOGICO_NEGACAO&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>|</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;VERDADEIRO&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>|</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;NUMERO&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>|</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;FALSO&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>|</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;VARIAVEL&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>|</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;TEXTO&gt;</TD>
+</TR>
+<TR>
+<TD ALIGN=RIGHT VALIGN=BASELINE></TD>
+<TD ALIGN=CENTER VALIGN=BASELINE>|</TD>
+<TD ALIGN=LEFT VALIGN=BASELINE>&lt;ABRE_PARENTESES&gt; <A HREF="#prod9">expressaoRelacao</A> &lt;FECHA_PARENTESES&gt;</TD>
+</TR>
+</TABLE>
+</BODY>
+</HTML>

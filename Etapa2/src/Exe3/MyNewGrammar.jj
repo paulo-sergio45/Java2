@@ -1,0 +1,273 @@
+options
+{
+  JDK_VERSION = "1.5";
+  DEBUG_PARSER = false;
+  DEBUG_TOKEN_MANAGER = false;
+}
+
+PARSER_BEGIN(TradutorDeExpressoesInfixasEmPosfixas)
+package Exe3;
+import java.io.*;
+
+public class TradutorDeExpressoesInfixasEmPosfixas
+{
+  public static void main(String args []) throws ParseException
+  {
+    TradutorDeExpressoesInfixasEmPosfixas analisador = null;
+    try
+    {
+      analisador = new TradutorDeExpressoesInfixasEmPosfixas(new FileInputStream("prog_fonte.my"));
+      analisador.inicio();
+    }
+    catch (FileNotFoundException e)
+    {
+      System.out.println("Erro: arquivo n\u00e3o encontrado");
+    }
+    catch (TokenMgrError e)
+    {
+      System.out.println("Erro l\u00e9xico\n" + e.getMessage());
+    }
+    catch (ParseException e)
+    {
+      System.out.println("Erro sint\u00e1tico\n" + e.getMessage());
+    }
+  }
+}
+
+PARSER_END(TradutorDeExpressoesInfixasEmPosfixas)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\r"
+| "\n"
+}
+
+TOKEN [ IGNORE_CASE ] :
+{
+  < OP_LOGICO_PASCAL :
+    (
+      "AND"
+    | "OR"
+    | "NOT"
+    | "XOR "
+    ) >
+}
+
+TOKEN :
+{
+  < IDENT :
+    (
+      "/*"
+      (
+        "a"
+      | "b"
+      | "d"
+      | "f"
+      | "g"
+      | "h"
+      | "i"
+      | "j"
+      | "k"
+      | "l"
+      | "m"
+      | "n"
+      | "o"
+      | "p"
+      | "q"
+      | "r"
+      | "s"
+      | "t"
+      | "v"
+      | "x"
+      | "z"
+      | "w"
+      | "k"
+      | "y"
+      )
+    | [ "a"-"z" ] [ "a"-"z" ]
+    )
+    ([ "a"-"z" ])* "*/" >
+| 
+  < ATRIB : ":=" >
+| 
+  < IGUAL : "=" >
+| 
+  < REAL : ([ "0"-"9" ])* (".") ([ "0"-"9" ])+ >
+| 
+  < NATURAIS : ([ "0"-"9" ])+ >
+| 
+  < HEXADECIMAL :
+    "0"
+    (
+      "x"
+    | "X"
+    )
+    ([ "0"-"9", "A"-"F", "a"-"f" ])+ >
+| 
+  < VARIAVEL : ([ "A"-"Z", "a"-"z" ]) ([ "A"-"Z", "a"-"z", "0"-"9" ])* >
+| 
+  < OP_LOGICO_JAVA :
+    "&&"
+  | "||"
+  | "!" >
+| 
+  < OP_RELACIONAL :
+    ">"
+  | ">="
+  | "<"
+  | "<=" >
+| 
+  < OP_RELACIONAL_JAVA :
+    "!="
+  | "==" >
+| 
+  < OP_RELACIONAL_PASCAL : "<>" >
+| 
+  < ABRE_PARENTESES : "(" >
+| 
+  < FECHA_PARENTESES : ")" >
+| 
+  < ADICAO : "+" >
+| 
+  < SUBTRACAO : "-" >
+| 
+  < MULTIPLICACAO : "*" >
+| 
+  < DIVISAO : "/" >
+| 
+  < MODULO : " %" >
+| 
+  < PT_VIRG : ";" >
+}
+
+void inicio() :
+{}
+{
+  expressao() < EOF >
+}
+
+void expressao() :
+{
+  Token t;
+}
+{
+  termo()
+  (
+    t = < ADICAO > termo()
+    {
+      System.out.print(t.image + " ");
+    }
+  )*
+  (
+    t = < SUBTRACAO > termo()
+    {
+      System.out.print(t.image + " ");
+    }
+  )*
+  (
+    t = < MULTIPLICACAO > termo()
+    {
+      System.out.print(t.image + " ");
+    }
+  )*
+  (
+    t = < DIVISAO > termo()
+    {
+      System.out.print(t.image + " ");
+    }
+  )*
+  (
+    t = < MODULO > termo()
+    {
+      System.out.print(t.image + " ");
+    }
+  )*
+}
+
+void termo() :
+{
+  Token t;
+}
+{
+  fator()
+  (
+    t = < ADICAO > fator()
+    {
+      System.out.print(t.image + " ");
+    }
+  )*
+  (
+    t = < SUBTRACAO > fator()
+    {
+      System.out.print(t.image + " ");
+    }
+  )*
+  (
+    t = < MULTIPLICACAO > fator()
+    {
+      System.out.print(t.image + " ");
+    }
+  )*
+  (
+    t = < DIVISAO > fator()
+    {
+      System.out.print(t.image + " ");
+    }
+  )*
+  (
+    t = < MODULO > fator()
+    {
+      System.out.print(t.image + " ");
+    }
+  )*
+}
+
+void fator() :
+{
+  Token t;
+}
+{
+  (
+    t = < ADICAO >
+    {
+      System.out.print(t.image);
+    }
+  )?
+  (
+    t = < SUBTRACAO >
+    {
+      System.out.print(t.image + " ");
+    }
+  )?
+  (
+    t = < MULTIPLICACAO >
+    {
+      System.out.print(t.image + " ");
+    }
+  )?
+  (
+    t = < DIVISAO >
+    {
+      System.out.print(t.image + " ");
+    }
+  )?
+  (
+    t = < MODULO >
+    {
+      System.out.print(t.image + " ");
+    }
+  )?
+  t = < NATURAIS >
+  {
+    System.out.print(t.image + " ");
+  }
+| 
+  t = < VARIAVEL >
+  {
+    System.out.print(t.image + " ");
+  }
+| 
+  < ABRE_PARENTESES > expressao() < FECHA_PARENTESES >
+}

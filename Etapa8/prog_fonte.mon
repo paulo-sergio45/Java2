@@ -1,0 +1,77 @@
+
+
+inicio
+
+   /* Programa exemplo
+
+   Calcula media final segundo criterios da FAESA */
+
+ 
+
+   NUMERICO   Nota1, Nota2, Nota3,
+
+                     MediaSemestral, MediaFinal, PrFinal, Faltas;
+
+   TEXTO    Situacao;
+
+ 
+
+   	imprima('''texto janela''','''entre com as duas notas:''');
+
+	Nota1 = LEIA('''''');
+	Nota2 = LEIA('''''');
+	Nota3 = LEIA('''''');
+	Faltas = LEIA('''Entre com o percentual de faltas:''');
+   
+
+ 
+
+   MediaSemestral = (Nota1+Nota2+Nota3)/3;
+
+   MediaFinal = MediaSemestral;
+
+    
+
+   if (Faltas > 50 OR (Faltas > 25 AND MediaSemestral < 1.5)) {
+
+      situacao = '''reprovado por faltas''';
+
+   }else{
+
+      IF (MediaSemestral < 1.5 ){
+
+         situacao = '''reprovado por nota''';
+
+      }else{
+
+         IF (MediaSemestral < 7 ){
+
+            imprima('''texto janela''','''Nota minima para a prova final:''',
+
+                    (5 - MediaSemestral * 0.4)/0.6);
+
+           PrFinal = LEIA('''Entre com a nota da prova final:''');
+
+            MediaFinal = MediaSemestral * 0.4 + PrFinal * 0.6;
+
+         }
+
+         IF (MediaFinal >= 5){
+
+            Situacao = '''aprovado''';
+
+         }else{
+
+            Situacao = '''reprovado por nota''';
+
+         }
+
+      }
+
+   }
+
+   imprima('''texto janela''','''Media final e:''', MediaFinal, '''Situacao:''',Situacao,
+
+           '''Faltas(%):''', PercentualFaltas);
+
+fim

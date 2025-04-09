@@ -1,0 +1,590 @@
+options
+{
+  JDK_VERSION = "1.5";
+  DEBUG_PARSER = false;
+  DEBUG_TOKEN_MANAGER = false;
+}
+
+PARSER_BEGIN(GramaticaLinguagem)
+package comp_etp_8;
+import java.io.*;
+import java.util.LinkedList;
+
+public class GramaticaLinguagem
+{
+  static Tabela tabela = new Tabela();
+
+  public static void main(String args []) throws ParseException
+  {
+    GramaticaLinguagem analisador = null;
+    try
+    {
+      analisador = new GramaticaLinguagem(new FileInputStream("Exemplo7.mon"));
+      analisador.inicio();
+      //      System.out.println(tabela.toString());
+    }
+    catch (FileNotFoundException e)
+    {
+      System.out.println("Erro: arquivo n\u00e3o encontrado");
+    }
+    catch (TokenMgrError e)
+    {
+      System.out.println("Erro l\u00e9xico\n" + e.getMessage());
+    }
+    catch (ParseException e)
+    {
+      System.out.println("Erro sint\u00e1tico\n" + e.getMessage());
+    }
+  }
+}
+
+PARSER_END(GramaticaLinguagem)
+
+/*espaco em branco*/
+
+SKIP :
+{
+  " "
+| "\t"
+| "\r"
+| "\n"
+| "\f"
+}
+
+/*comentario*/
+SPECIAL_TOKEN :
+{
+  < COMENTARIO_BLOC : "/*" (~[ "/" ])* "*/" >
+| 
+  < COMENTARIO_LIN :
+    "//" (~[ "\n", "\r" ])*
+    (
+      "\n"
+    | "\r"
+    | "\r\n"
+    ) >
+}
+
+/*palavras reservadas*/
+TOKEN :
+{
+  < TIPO_NUMERICO : "numerico" >
+| 
+  < TIPO_TEXTO : "texto" >
+| 
+  < WHILE : "while" >
+| 
+  < INICIO : "inicio" >
+| 
+  < FIM : "fim" >
+| 
+  < VERDADEIRO : 
+    "verdade" >
+| 
+  < FALSO : 
+    "falso" >
+| 
+  < IF : "if" >
+| 
+  < ELSE : "else" >
+| 
+  < LEIA : "leia" >
+| 
+  < IMPRIMA : "imprima" >
+}
+
+TOKEN :
+{
+  < TEXTO :
+    (< ASPA >)
+    (
+      ~[ "\"" ]
+    | "\\" (< ASPA >)
+    )*
+    (< ASPA >) >
+| 
+  < LETRAS : ([ "a"-"z", "A"-"Z" ]) >
+| 
+  < NUMERO : (< DIGITO >)* (".")? (< DIGITO >)+ >
+| 
+  < DIGITO : ([ "0"-"9" ]) >
+| 
+  < VARIAVEL : (< CIFRAO >) (< LETRAS >) (< LETRAS >)* (< DIGITO >)* >
+| 
+  < ATRIBUICAO : "=" >
+| 
+  < CIFRAO : "$" >
+| 
+  < OP_LOGICO_E :
+    "&&"
+  | "and" >
+| 
+  < OP_LOGICO_OU :
+    "||"
+  | "or" >
+| 
+  < OP_LOGICO_NEGACAO :
+    "!"
+  | "not" >
+| 
+  < OP_MAIOR_QUE : ">" >
+| 
+  < OP_MAIOR_OU_IGUAL : ">=" >
+| 
+  < OP_MENOR_QUE : "<" >
+| 
+  < OP_MENOR_OU_IGUAL : "<=" >
+| 
+  < OP_DIFERENTE : "!=" >
+| 
+  < OP_IGUALDADE : "==" >
+| 
+  < ABRE_PARENTESES : "(" >
+| 
+  < FECHA_PARENTESES : ")" >
+| 
+  < ABRE_CHAVES : "{" >
+| 
+  < FECHA_CHAVES : "}" >
+| 
+  < ADICAO : "+" >
+| 
+  < SUBTRACAO : "-" >
+| 
+  < MULTIPLICACAO : "*" >
+| 
+  < DIVISAO : "/" >
+| 
+  < MODULO : "%" >
+| 
+  < FINAL_COMANDO : ";" >
+| 
+  < VIRGULA : "," >
+| 
+  < ASPA : "\"" >
+| 
+  < POTENCIA : "^" >
+}
+
+void inicio() :
+{
+}
+{
+  (
+    < INICIO > blocoComando() < FIM >
+    {
+    }
+  )*
+  < EOF >
+  {
+  }
+}
+
+void blocoComando() :
+{
+}
+{
+  (
+    comandoIf()
+  | comandoWhile()
+  | comandoLinha()
+  )*
+  {
+  }
+}
+
+void comandoLinha() :
+{
+}
+{
+  declarar()
+| impressao()
+| atribuicao()
+  {
+  }
+}
+
+void comandoWhile() :
+{
+}
+{
+  < WHILE > < ABRE_PARENTESES > expressaoRelacao() < FECHA_PARENTESES > < ABRE_CHAVES > blocoComando() < FECHA_CHAVES >
+  {
+  }
+}
+
+void comandoIf() :
+{
+}
+{
+  < IF > < ABRE_PARENTESES > expressaoRelacao() < FECHA_PARENTESES > < ABRE_CHAVES > blocoComando() < FECHA_CHAVES >
+  (
+    < ELSE > < ABRE_CHAVES > blocoComando() < FECHA_CHAVES >
+  )?
+  {
+  }
+}
+
+void atribuicao() :
+{
+  boolean declarada;
+  Token t = null;
+  LinkedList < String > exp;
+}
+{
+  t = < VARIAVEL >
+  {
+    if (!tabela.isExiste(t.image))
+    {
+      declarada = false;
+      System.err.println("erro: vari\u00e1vel " + t.image + " n\u00e3o declarada");
+    }
+    else
+    {
+      declarada = true;
+    }
+  }
+  < ATRIBUICAO >
+  (
+    exp = expressaoRelacao()
+    {
+      if (declarada)
+      {
+        if (tabela.getSimbolo(t.image).getTipo() == 'n')
+        {
+          if (tabela.getSimbolo(t.image).getTipo() == 'n' && !exp.contains("s"))
+          {
+          }
+          else
+          {
+            System.err.println("erro: incompatibilidade de tipos na atribui\u00e7\u00e3o" + t.image);
+          }
+        }
+        if (tabela.getSimbolo(t.image).getTipo() == 's')
+        {
+          if (tabela.getSimbolo(t.image).getTipo() == 's' && !exp.contains("n"))
+          {
+          }
+          else
+          {
+            System.err.println("erro: incompatibilidade de tipos na atribui\u00e7\u00e3o" + t.image);
+          }
+        }
+      }
+      else
+      {
+      }
+    }
+  | 
+    entrada()
+    {
+      if (declarada)
+      {
+        if (tabela.getSimbolo(t.image).getTipo() == 's')
+        {
+        }
+        else
+        {
+          System.err.println("erro: incompatibilidade de tipos na atribui\u00e7\u00e3o");
+        }
+      }
+      else
+      {
+      }
+    }
+  )*
+  < FINAL_COMANDO >
+  {
+  }
+}
+
+void entrada() :
+{
+}
+{
+  < LEIA > < ABRE_PARENTESES > < TEXTO > < FECHA_PARENTESES >
+  {
+  }
+}
+
+void impressao() :
+{
+}
+{
+  < IMPRIMA > < ABRE_PARENTESES > < TEXTO >
+  (
+    < VIRGULA > expressaoRelacao()
+  )*
+  < FECHA_PARENTESES > < FINAL_COMANDO >
+  {
+  }
+}
+
+void declarar() :
+{
+  Simbolo simb;
+  Token t;
+  char tp;
+}
+{
+  (
+    < TIPO_TEXTO >
+    {
+      tp = 's';
+    }
+  | < TIPO_NUMERICO >
+    {
+      tp = 'n';
+    }
+  )
+  t = < VARIAVEL >
+  {
+    if (tabela.isExiste(t.image))
+    {
+      System.err.println("erro: vari\u00e1vel " + t.image + " repetida");
+    }
+    else
+    {
+      simb = new Simbolo(t.image, tp);
+      tabela.inclui(simb);
+    }
+  }
+  (
+    < VIRGULA > t = < VARIAVEL >
+    {
+      if (tabela.isExiste(t.image))
+      {
+        System.err.println("erro: vari\u00e1vel " + t.image + " repetida");
+      }
+      else
+      {
+        simb = new Simbolo(t.image, tp);
+        tabela.inclui(simb);
+      }
+    }
+  )*
+  < FINAL_COMANDO >
+}
+
+LinkedList < String > expressaoRelacao() :
+{
+  LinkedList < String > listaExp = new LinkedList < String > ();
+  String exp = null;
+}
+{
+  exp = termo()
+  {
+    listaExp.add(exp);
+  }
+  (
+    < OP_LOGICO_OU > exp = termo()
+    {
+      listaExp.add(exp);
+    }
+  )*
+  {
+    return listaExp;
+  }
+}
+
+String termo() :
+{
+  String exp = null;
+}
+{
+  exp = termo1()
+  (
+    < OP_LOGICO_E > exp = termo1()
+    {}
+  )*
+  {
+    return exp;
+  }
+}
+
+String termo1() :
+{
+  String exp = null;
+}
+{
+  exp = termo2()
+  (
+    < OP_IGUALDADE > exp = termo2()
+    {}
+  | 
+    < OP_DIFERENTE > exp = termo2()
+    {}
+  | 
+    < OP_MAIOR_QUE > exp = termo2()
+    {}
+  | 
+    < OP_MENOR_QUE > exp = termo2()
+    {}
+  | 
+    < OP_MAIOR_OU_IGUAL > exp = termo2()
+    {}
+  | 
+    < OP_MENOR_OU_IGUAL > exp = termo2()
+    {}
+  )*
+  {
+    return exp;
+  }
+}
+
+String termo2() :
+{
+  String exp = null;
+}
+{
+  exp = termo3()
+  (
+    < ADICAO > exp = termo3()
+    {}
+  )*
+  {
+    return exp;
+  }
+}
+
+String termo3() :
+{
+  String exp = null;
+}
+{
+  exp = termo4()
+  (
+    < SUBTRACAO > exp = termo4()
+    {}
+  )*
+  {
+    return exp;
+  }
+}
+
+String termo4() :
+{
+  String exp = null;
+}
+{
+  exp = termo5()
+  (
+    < MULTIPLICACAO > exp = termo5()
+    {}
+  )*
+  {
+    return exp;
+  }
+}
+
+String termo5() :
+{
+  String exp = null;
+}
+{
+  exp = termo6()
+  (
+    < DIVISAO > exp = termo6()
+    {}
+  )*
+  {
+    return exp;
+  }
+}
+
+String termo6() :
+{
+  String exp = null;
+}
+{
+  exp = termo7()
+  (
+    < MODULO > exp = termo7()
+    {}
+  )*
+  {
+    return exp;
+  }
+}
+
+String termo7() :
+{
+  String exp = null;
+}
+{
+  exp = termo8()
+  (
+    < POTENCIA > exp = termo8()
+    {}
+  )*
+  {
+    return exp;
+  }
+}
+
+String termo8() :
+{
+  String exp = null;
+  int cont = 0;
+  Token t = null;
+}
+{
+  (	t = < OP_LOGICO_NEGACAO >
+  {
+    cont++;
+  }
+  )* exp = fator()
+  {
+    if (t != null && (cont % 2 != 0))
+    {
+    }
+    return exp;
+  }
+}
+
+String fator() :
+{
+  String exp = null;
+  Token t;
+}
+{
+  < VERDADEIRO >
+  {
+    exp = "n";
+    return exp;
+  }
+| 
+  < NUMERO >
+  {
+    exp = "n";
+    return exp;
+  }
+| 
+  < FALSO >
+  {
+    exp = "n";
+    return exp;
+  }
+| 
+  t = < VARIAVEL >
+  {
+  if (tabela.isExiste(t.image))
+    {
+      exp = String.valueOf(tabela.getSimbolo(t.image).getTipo());
+    }else {
+System.err.println("erro: vari\u00e1vel " + t.image + " n\u00e3o declarada");
+      }
+    
+    return exp;
+  }
+| 
+  < TEXTO >
+  {
+    exp = "s";
+    return exp;
+  }
+| 
+  < ABRE_PARENTESES > expressaoRelacao() < FECHA_PARENTESES >
+  {
+  }
+}

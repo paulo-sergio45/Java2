@@ -1,0 +1,300 @@
+/*  CompiladorExemplo.jj  -  Analisador Sintático */
+
+options
+{
+  JDK_VERSION = "1.5";
+  DEBUG_PARSER = false;
+  DEBUG_TOKEN_MANAGER = false;
+}
+
+PARSER_BEGIN(NumerosRomanosArabicos)
+package Exe1;
+import java.io.*;
+
+public class NumerosRomanosArabicos
+{
+  public static void main(String args []) throws ParseException
+  {
+    NumerosRomanosArabicos analisador = null;
+    try
+    {
+      analisador = new NumerosRomanosArabicos(new FileInputStream("prog_fonte.my"));
+      analisador.inicio();
+    }
+    catch (FileNotFoundException e)
+    {
+      System.out.println("Erro: arquivo n\u00e3o encontrado");
+    }
+    catch (TokenMgrError e)
+    {
+      System.out.println("Erro l\u00e9xico\n" + e.getMessage());
+    }
+    catch (ParseException e)
+    {
+      System.out.println("Erro sint\u00e1tico\n" + e.getMessage());
+    }
+  }
+}
+
+PARSER_END(NumerosRomanosArabicos)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\r"
+| "\n"
+}
+
+TOKEN [ IGNORE_CASE ] :
+{
+  < EXIBE : "exibe" >
+}
+
+TOKEN :
+{
+  < IDENT :
+    (
+      (
+        "a"
+      | "b"
+      | "d"
+      | "f"
+      | "g"
+      | "h"
+      | "i"
+      | "j"
+      |  "k"
+      | "l"
+      | "m"
+      | "n"
+      | "o"
+      | "p"
+      | "q"
+      | "r"
+      | "s"
+      | "t"
+      | "v"
+      | "x"
+      | "z"
+      | "w"
+      | "k"
+      | "y"
+      )
+    | [ "a"-"z" ] [ "a"-"z" ]
+    )
+    ([ "a"-"z" ])* >
+| 
+  < ATRIB : ":=" >
+| 
+  < IGUAL : "=" >
+| 
+  < ADICAO : "+" >
+| 
+  < PT_VIRG : ";" >
+| 
+  < NUM : ([ "0"-"9" ])([ "0"-"9" ])*  >
+| 
+  < UM : "I" >
+| 
+  < DOIS : "II" >
+| 
+  < TRES : "III" >
+| 
+  < QUATRO : "IV" >
+| 
+  < CINCO : "V" >
+| 
+  < SEIS : "VI" >
+| 
+  < SETE : "VII" >
+| 
+  < OITO : "VIII" >
+| 
+  < NOVE : "IX" >
+| 
+  < DEZ : "X" >
+| 
+  < VINTE : "XX" >
+| 
+  < TRINTA : "XXX" >	
+| 
+  < QUARENTA : "XL" >	
+| 
+  < CINQUENTA : "L" >	
+| 
+  < SESSENTA : "LX" >	
+| 
+  < SETENTA : "LXX" >	
+| 
+  < OITENTA : "LXXX" >	
+| 
+  < NOVENTA : "XC" >	
+| 
+  < CEM : "C" >	
+| 
+  < DUZENTOS : "CC" >	
+| 
+  < TREZENTOS : "CCC" >	
+| 
+  < QUATROCENTOS : "CD" >	
+| 
+  < QUINHETOS : "D" >	
+| 
+  < SEISCENTOS : "DC" >	
+| 
+  < SETECENTOS : "DCC" >	
+| 
+  < OITOCENTOS : "DCCC" >	
+| 
+  < NOVECENTOS : "CM" >	
+| 
+  < MIL : "M" >	
+| 
+  < DOISMIL : "MM" >	
+| 
+  < TREISMIL : "MMM" >	
+}
+
+void inicio() :
+{}
+{
+  (
+    linhaComando()
+  )*
+  < EOF >
+}
+
+void linhaComando() :
+{}
+{
+  comando() < PT_VIRG >
+}
+
+void comando() :
+{}
+{
+  exibe()
+| atribui()
+}
+
+void exibe() :
+{}
+{
+  < EXIBE > < IDENT >
+}
+
+void atribui() :
+{}
+{
+  < IDENT >
+  (
+    < ATRIB >
+  | < IGUAL >
+  )
+  expressao()
+}
+
+void expressao() :
+{}
+{
+  fator()
+  (
+    < ADICAO > fator()
+  )*
+}
+
+void fator() :
+{}
+{
+  < IDENT > | numeroAra() | numeroRom()
+}
+
+void numeroRom() :
+{}
+{
+  (
+    milhar()
+  )?
+  (
+    centenas()
+  )?
+  (
+    dezena()
+  )?
+  (
+    unidade()
+  )?
+| unidade()
+}
+
+void numeroAra() :
+{}
+{
+  <NUM>
+}
+
+void unidade() :
+{}
+{
+  < UM >
+| < DOIS >
+| < TRES >
+| < QUATRO >
+| < CINCO >
+| < SEIS >
+| < SETE >
+| < OITO >
+| < NOVE >
+}
+
+void dezena() :
+{}
+{
+  < DEZ >
+| < VINTE >
+| < TRINTA > 
+  < QUARENTA >	
+| 
+  < CINQUENTA >	
+| 
+  < SESSENTA >	
+| 
+  < SETENTA >	
+| 
+  < OITENTA >	
+| 
+  < NOVENTA >	
+}
+
+void centenas() :
+{}
+{
+  < CEM >	
+| 
+  < DUZENTOS >	
+| 
+  < TREZENTOS >	
+| 
+  < QUATROCENTOS >	
+| 
+  < QUINHETOS >	
+| 
+  < SEISCENTOS >	
+| 
+  < SETECENTOS >	
+| 
+  < OITOCENTOS >	
+| 
+  < NOVECENTOS >	
+}
+
+void milhar() :
+{}
+{
+  < MIL >	
+| 
+  < DOISMIL >	
+| 
+  < TREISMIL >	
+}

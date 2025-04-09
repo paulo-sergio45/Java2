@@ -1,0 +1,143 @@
+------------------------
+|símbolos não terminais| 
+------------------------
+
+
+
+inicio ::= ( <INICIO> blocoComando <FIM> )* <EOF> 
+
+blocoComando ::= ( comandoIf | comandoWhile | comandoLinha )* 
+
+comandoLinha ::= declarar 
+ | impressao 
+ | atribuicao 
+ 
+comandoWhile ::= <WHILE> <ABRE_PARENTESES> expressaoRelacao <FECHA_PARENTESES> <ABRE_CHAVES> blocoComando <FECHA_CHAVES> 
+
+comandoIf ::= <IF> <ABRE_PARENTESES> expressaoRelacao <FECHA_PARENTESES> <ABRE_CHAVES> blocoComando <FECHA_CHAVES> ( <ELSE> <ABRE_CHAVES> blocoComando <FECHA_CHAVES> )? 
+
+atribuicao ::= <VARIAVEL> <ATRIBUICAO> ( expressaoRelacao | entrada )* <FINAL_COMANDO> 
+
+entrada ::= <LEIA> <ABRE_PARENTESES> <TEXTO> <FECHA_PARENTESES> 
+
+impressao ::= <IMPRIMA> <ABRE_PARENTESES> <TEXTO> ( <VIRGULA> expressaoRelacao )* <FECHA_PARENTESES> <FINAL_COMANDO> 
+
+declarar ::= ( <TIPO_TEXTO> | <TIPO_NUMERICO> ) <VARIAVEL> ( <VIRGULA> <VARIAVEL> )* <FINAL_COMANDO> 
+
+expressaoRelacao ::= expressaoNaoRelacao ( <OP_MAIOR_QUE> expressaoNaoRelacao | <OP_MAIOR_OU_IGUAL> expressaoNaoRelacao | <OP_MENOR_QUE> expressaoNaoRelacao |
+ <OP_MENOR_OU_IGUAL> expressaoNaoRelacao | <OP_DIFERENTE> expressaoNaoRelacao | <OP_IGUALDADE> expressaoNaoRelacao )* 
+ 
+expressaoNaoRelacao ::=  termo ( <ADICAO> termo |  <SUBTRACAO>  termo | <OP_LOGICO_OU> termo )*
+ 
+termo ::= fator (<POTENCIA> fator | <MULTIPLICACAO> fator | <DIVISAO> fator | <OP_LOGICO_E> fator | <MODULO> fator )* 
+
+fator ::= <OP_LOGICO_NEGACAO> 
+ | <VERDADEIRO> 
+ | <NUMERO> 
+ | <FALSO> 
+ | <VARIAVEL> 
+ | <TEXTO> 
+ | <ABRE_PARENTESES> expressaoRelacao <FECHA_PARENTESES> 
+
+
+
+
+--------
+|tokens| 
+--------
+
+
+<COMENTARIO_BLOC> ::=  "/*" (~[ "/" ])* "*/"
+ 
+<COMENTARIO_LIN> ::=    "//" (~[ "\n", "\r" ])*( "\n" | "\r"| "\r\n" ) 
+
+<FINAL-COMANDO> ::= ;
+
+<TIPO_NUMERICO> ::= numerico
+
+<TIPO_TEXTO>::= texto
+
+<TEXTO> ::=  <ASPA> (~["\""] | "\\" <ASPA>)* <ASPA>
+
+<NUMERO> ::=   (DIGITO) [.]? (DIGITO)*
+
+<DIGITO> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+<LETRAS> ::= (a | b | c  | d  | e  | f  | g  | h  | i  | j  | l  | m  | 
+n  | o  | p  | q  | r  | s  | t  | u  | v  | x  | z |A | B | C  | D  | E  
+| F  | G  | H  | I  | J  | L  | M  | N  | O  | P  | Q  | R  | S  | T  | U  
+| V  | X  | Z
+)
+
+<OP_LOGICO_E> ::= "&&" | and
+
+<OP_LOGICO_OU> ::= "||" | "or"
+
+<OP_LOGICO_NEGACAO> ::= "!" | "not"
+
+<VERDADEIRO> ::=  VERDADE
+
+<FALSO> ::=  FALSO
+
+<CIFRAO>::= $
+
+<VARIAVEL> ::= <CIFRAO> <LETRAS> ( <LETRAS>  <NUMERO> )*
+
+<OP_MAIOR_QUE>::=  >
+ 
+<OP_MAIOR_OU_IGUAL>::=  >=
+ 
+<OP_MENOR_QUE>::=  < 
+
+<OP_MENOR_OU_IGUAL>::=  <=
+
+<OP_DIFERENTE>::=  !=
+ 
+<OP_IGUALDADE>::=  == 
+
+<ABRE_PARENTESES> ::= (
+
+<FECHA_PARENTESES> ::= )
+
+<ABRE_CHAVES>::= {
+
+<FECHA_CHAVES>::= }
+
+<ADICAO> ::= +
+
+<SUBTRACAO> ::= -
+
+<MULTIPLICACAO> ::= *
+
+<DIVISAO> ::= /
+
+<MODULO> ::=  %
+
+<POTENCIA> ::= ^
+
+<VIRGULA> ::= ,
+
+<ASPA>::= "
+ 
+<POTENCIA>::= ^
+
+<INICIO> ::= inicio
+
+<FIM> ::= fim
+
+<ELSE> ::= else  
+
+<ATRIBUICAO  > ::= =
+
+<IF> ::= if
+
+<ELSE> ::= else
+
+<WHILE> ::= while
+
+<LEIA> ::= leia
+
+<IMPRIMA> ::= imprima
+
+
+essa linguagem é case-sensitive

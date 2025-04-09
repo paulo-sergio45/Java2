@@ -1,0 +1,182 @@
+options
+{
+  JDK_VERSION = "1.5";
+  DEBUG_PARSER = false;
+  DEBUG_TOKEN_MANAGER = false;
+}
+
+PARSER_BEGIN(Analisadorlexico)
+package comp_etp_4;
+import java.io.*;
+
+public class Analisadorlexico
+{
+  public static void main(String args []) throws ParseException
+  {
+    Analisadorlexico analisador = null;
+    try
+    {
+      analisador = new Analisadorlexico(new FileInputStream("Exemplo6.mon"));
+      analisador.inicio();
+    }
+    catch (FileNotFoundException e)
+    {
+      System.out.println("Erro: arquivo n\u00e3o encontrado");
+    }
+    catch (TokenMgrError e)
+    {
+      System.out.println("Erro l\u00e9xico\n" + e.getMessage());
+    }
+    catch (ParseException e)
+    {
+      System.out.println("Erro sint\u00e1tico\n" + e.getMessage());
+    }
+  }
+}
+
+PARSER_END(GramaticaLinguagem)
+
+/*espaco em branco*/
+
+SKIP :
+{
+  " "
+| "\t"
+| "\r"
+| "\n"
+| "\f"
+}
+
+/*comentario*/
+SPECIAL_TOKEN :
+{
+  < COMENTARIO_BLOC : "/*" (~[ "/" ])* "*/" >
+| 
+  < COMENTARIO_LIN :
+    "//" (~[ "\n", "\r" ])*
+    (
+      "\n"
+    | "\r"
+    | "\r\n"
+    ) >
+}
+
+/*palavras reservadas*/
+TOKEN :
+{
+  < TIPO_NUMERICO : "numerico" >
+| 
+  < TIPO_TEXTO : "texto" >
+| 
+  < WHILE : "while" >
+| 
+  < INICIO : "inicio" >
+| 
+  < FIM : "fim" >
+| 
+  < VERDADEIRO :
+    "verdade" >
+| 
+  < FALSO :
+    "falso" >
+| 
+  < IF : "if" >
+| 
+  < ELSE : "else" >
+| 
+  < LEIA : "leia" >
+| 
+  < IMPRIMA : "imprima" >
+}
+
+TOKEN :
+{
+  < TEXTO :
+    (< ASPA >)
+    (
+      ~[ "\"" ]
+    | "\\" (< ASPA >)
+    )*
+    (< ASPA >) >
+| 
+  < LETRAS : ([ "a"-"z", "A"-"Z" ]) >
+| 
+  < NUMERO : (< DIGITO >)* (".")? (< DIGITO >)+ >
+| 
+  < DIGITO : ([ "0"-"9" ]) >
+| 
+  < VARIAVEL : (< CIFRAO >) (< LETRAS >) (< LETRAS >)* (< DIGITO >)* >
+| 
+  < ATRIBUICAO : "=" >
+| 
+  < CIFRAO : "$" >
+| 
+  < OP_LOGICO_E :
+    "&&"
+  | "and" >
+| 
+  < OP_LOGICO_OU :
+    "||"
+  | "or" >
+| 
+  < OP_LOGICO_NEGACAO :
+    "!"
+  | "not" >
+| 
+  < OP_MAIOR_QUE : ">" >
+| 
+  < OP_MAIOR_OU_IGUAL : ">=" >
+| 
+  < OP_MENOR_QUE : "<" >
+| 
+  < OP_MENOR_OU_IGUAL : "<=" >
+| 
+  < OP_DIFERENTE : "!=" >
+| 
+  < OP_IGUALDADE : "==" >
+| 
+  < ABRE_PARENTESES : "(" >
+| 
+  < FECHA_PARENTESES : ")" >
+| 
+  < ABRE_CHAVES : "{" >
+| 
+  < FECHA_CHAVES : "}" >
+| 
+  < ADICAO : "+" >
+| 
+  < SUBTRACAO : "-" >
+| 
+  < MULTIPLICACAO : "*" >
+| 
+  < DIVISAO : "/" >
+| 
+  < MODULO : "%" >
+| 
+  < FINAL_COMANDO : ";" >
+| 
+  < VIRGULA : "," >
+| 
+  < ASPA : "\"" >
+| 
+  < POTENCIA : "^" >
+}
+
+
+JAVACODE void inicio()
+
+{
+
+   Token t;
+
+   do {
+
+      t = getNextToken();
+
+      System.out.println(tokenImage[t.kind]+"\t\t\t"+t.image);
+
+   }
+
+   while(t.kind != EOF);
+
+}

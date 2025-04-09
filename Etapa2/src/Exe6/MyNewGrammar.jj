@@ -1,0 +1,328 @@
+options
+{
+  JDK_VERSION = "1.5";
+  DEBUG_PARSER = false;
+  DEBUG_TOKEN_MANAGER = false;
+}
+
+PARSER_BEGIN(CalculadoraDeConjuntos)
+package Exe6;
+import java.util.LinkedList;
+import java.io.*;
+
+public class CalculadoraDeConjuntos
+{
+  static Tabela tabela = new Tabela();
+
+  public static void main(String args []) throws ParseException
+  {
+    CalculadoraDeConjuntos analisador = null;
+    try
+    {
+      analisador = new CalculadoraDeConjuntos(new FileInputStream("prog_fonte.my"));
+      analisador.inicio();
+    }
+    catch (FileNotFoundException e)
+    {
+      System.out.println("Erro: arquivo n\u00e3o encontrado");
+    }
+    catch (TokenMgrError e)
+    {
+      System.out.println("Erro l\u00e9xico\n" + e.getMessage());
+    }
+    catch (ParseException e)
+    {
+      System.out.println("Erro sint\u00e1tico\n" + e.getMessage());
+    }
+  }
+}
+
+PARSER_END(CalculadoraDeConjuntos)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\r"
+| "\n"
+}
+
+TOKEN [ IGNORE_CASE ] :
+{
+  < VAR : "_" ([ "a"-"z" ])+ >
+| < IDENT :
+    (
+      (
+        "a"
+      | "b"
+      | "d"
+      | "f"
+      | "g"
+      | "h"
+      | "i"
+      | "j"
+      | 
+        "k"
+      | "l"
+      | "m"
+      | "n"
+      | "o"
+      | "p"
+      | "q"
+      | "r"
+      | 
+        "s"
+      | "t"
+      | "v"
+      | "x"
+      | "z"
+      | "w"
+      | "k"
+      | "y"
+      )
+    | [ "a"-"z" ] [ "a"-"z" ]
+    )
+    ([ "a"-"z" ])* >
+  // Se usar (["a"-"z"])+ ocorre conflito com os tokens de União, Está Contido e Pertence
+| < NUM : ([ "0"-"9" ])+ >
+| < VIRG : "," >
+| < PT_VIRG : ";" >
+| < PONTO : "." >
+| < IGUAL : "=" >
+| < UNIAO : "U" >
+| < INTERSECAO : "^" >
+| < ESTA_CONTIDO : "C" >
+| < PERTENCE : "E" >
+| < ABRE_CHAVES : "{" >
+| < FECHA_CHAVES : "}" >
+| < ABRE_PAR : "(" >
+| < FECHA_PAR : ")" >
+}
+
+void inicio() :
+{}
+{
+  (
+    linhaComando()
+  )*
+  < EOF >
+}
+
+void linhaComando() :
+{}
+{
+  comando() < PT_VIRG >
+}
+
+void comando() :
+{}
+{
+  (
+    LOOKAHEAD(2)
+    atribuicao()
+  | 
+    expressao()
+  )
+}
+
+void expressao() :
+{
+  Token t;
+  Conjunto conj1 = null;
+  Conjunto conj2 = null;
+  boolean result;
+}
+{
+  (
+    (
+      t = < NUM >
+    | t = < IDENT >
+    )
+    < PERTENCE > conj1 = expLogica()
+    {
+      result = Conjunto.pertence(t.image, conj1);
+      if (result)
+      {
+        System.out.println("VERDADEIRO");
+      }
+      else
+      {
+        System.out.println("FALSO");
+      }
+    }
+  | 
+    conj1 = expLogica()
+    (
+      < ESTA_CONTIDO > conj2 = expLogica()
+      {
+        result = Conjunto.estaContido(conj1, conj2);
+        if (result)
+        {
+          System.out.println("VERDADEIRO");
+        }
+        else
+        {
+          System.out.println("FALSO");
+        }
+      }
+    )?
+    {
+      if (conj2 == null)
+      {
+        System.out.println(conj1.toString());
+      }
+    }
+  )
+}
+
+Conjunto expLogica() :
+{
+  Conjunto conj1, conj2;
+}
+{
+  conj1 = fator()
+  (
+    < UNIAO > conj2 = fator()
+    {
+      conj1 = Conjunto.uniao(conj1, conj2);
+    }
+  )*
+  {
+    return conj1;
+  }
+}
+
+Conjunto fator() :
+{
+  Conjunto conj1, conj2;
+}
+{
+  conj1 = termo()
+  (
+    < INTERSECAO > conj2 = termo()
+    {
+      conj1 = Conjunto.intersecao(conj1, conj2);
+    }
+  )*
+  {
+    return conj1;
+  }
+}
+
+Conjunto termo() :
+{
+  Token t;
+  Conjunto conj = new Conjunto();
+}
+{
+  (
+    < ABRE_PAR > conj = expLogica() < FECHA_PAR >
+  | 
+    conj = conjunto()
+  | 
+    t = < VAR >
+    {
+      String var = t.image.substring(0, 2);
+      if (tabela.isExiste(var))
+      {
+        conj = (Conjunto) tabela.getSimbolo(var).getValor();
+      }
+      else
+      {
+        System.out.println("Erro sem\u00e2ntico\nA vari\u00e1vel " + t.image + " n\u00e3o foi inicializada");
+      }
+    }
+  )
+  {
+    return conj;
+  }
+}
+
+void atribuicao() :
+{
+  Simbolo simb;
+  Token t;
+  Conjunto conj;
+}
+{
+  t = < VAR > < IGUAL > conj = expLogica()
+  {
+    String var = t.image.substring(0, 2);
+    simb = new Simbolo(var, conj);
+    if (tabela.isExiste(var))
+    {
+      tabela.getSimbolo(var).setValor(conj);
+      System.out.println(conj.toString());
+    }
+    else
+    {
+      if (tabela.getNumeroSimbolos() > 25)
+      {
+        System.out.println("Erro sem\u00e2ntico\nS\u00e3o permitidas apenas 26 vari\u00e1veis.");
+      }
+      else
+      {
+        tabela.inclui(simb);
+        System.out.println(conj.toString());
+      }
+    }
+  }
+}
+
+Conjunto conjunto() :
+{
+  Token t;
+  Conjunto conj = new Conjunto();
+  String aux;
+}
+{
+  t = < ABRE_CHAVES >
+  (
+    elemento(conj)
+    (
+      t = < VIRG > elemento(conj)
+    )*
+  )? // ? PARA PREVER O CONJUNTO VAZIO { }
+  t = < FECHA_CHAVES >
+  {
+    return conj;
+  }
+}
+
+void elemento(Conjunto conj) :
+{
+  Token t;
+  int a, b;
+  StringBuilder strAux = new StringBuilder();
+}
+{
+  (
+    t = < NUM >
+    {
+      a = Integer.parseInt(t.image);
+      conj.add(t.image);
+    }
+    (
+      < PONTO > < PONTO > < PONTO > t = < NUM >
+      {
+        b = Integer.parseInt(t.image);
+        if (a + 1 < b)
+        {
+          for (int i = a + 1; i <= b; i++)
+          {
+            conj.add(String.valueOf(i));
+          }
+        }
+        else
+        {
+          System.out.println("Erro sem\u00e2ntico\nO intervalo informado \"" + a + "..." + b + "\" n\u00e3o \u00e9 v\u00e1lido.");
+        }
+      }
+    )?
+  | 
+    t = < IDENT >
+    {
+      conj.add(t.image);
+    }
+  )
+}

@@ -1,0 +1,25 @@
+
+
+inicio
+
+   // calcula media de muitos valores
+
+   numerico $soma, $valor, $qtde;
+
+   $qtde = leia("quantos valores:");
+
+   $soma = 0;
+
+   $cont = 1;
+
+   while($cont <= $qtde){
+
+      $valor = leia(" ");
+
+      $soma = $soma + $valor;
+
+   }
+
+   imprima("texto janela","Media:", $soma/$qtde);
+
+fim

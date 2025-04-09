@@ -1,0 +1,55 @@
+; Arquivo de definição de sintaxe para a linguagem exemplo
+; Copyright (C) 2020, paulo sergio
+; FAESA - Disciplina de Compiladores
+
+C=1
+
+[Syntax]
+Namespace1 = 6
+IgnoreCase = Yes
+KeyWordLength = 0
+BracketChars = ()
+OperatorChars = +-*/%^<>
+InitKeyWordChars = A-Za-z_
+KeyWordChars = A-Za-z0-9_
+PreprocStart =
+SyntaxStart =
+SyntaxEnd =
+HexPrefix =
+CommentStart = /*
+CommentEnd = */
+CommentStartAlt =
+CommentEndAlt =
+SingleComment = //
+SingleCommentCol =
+SingleCommentAlt =
+SingleCommentColAlt =
+SingleCommentEsc =
+StringsSpanLines = Yes
+StringStart = "
+StringEnd = "
+StringAlt =
+StringEsc = \
+CharStart = '
+CharEnd = '
+CharEsc = \
+
+[Keywords 1]
+inicio
+fim
+if
+else 
+while
+break
+
+
+[Keywords 2]
+numerico 
+texto 
+imprima
+leia
+verdade
+falso
+and
+or
+not
